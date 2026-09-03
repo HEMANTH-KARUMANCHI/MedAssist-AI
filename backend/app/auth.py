@@ -1,15 +1,16 @@
+import os
+import bcrypt
 from fastapi import APIRouter, HTTPException, Depends
-from passlib.context import CryptContext
 
 from app.database import get_database_connection
 from app.schemas import UserRegister
 
 from datetime import datetime, timedelta, timezone
 
-from jose import jwt,JWTError
+from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 
-oauth2_scheme=OAuth2PasswordBearer(
+oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login"
 )
 
@@ -50,10 +51,21 @@ router = APIRouter(
 )
 
 
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto"
-)
+def hash_password(password: str) -> str:
+    """Safely hash password using native bcrypt with 72-byte truncation."""
+    pwd_bytes = password.encode("utf-8")[:72]
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Safely verify password using native bcrypt."""
+    try:
+        pwd_bytes = plain_password.encode("utf-8")[:72]
+        hash_bytes = hashed_password.encode("utf-8")
+        return bcrypt.checkpw(pwd_bytes, hash_bytes)
+    except Exception:
+        return False
 
 
 #patient authentication
@@ -81,67 +93,68 @@ def require_caretaker(
     return current_user
 
 
-SECRET_KEY="medassist-ai-secret-key-change-later"
-ALGORITHM="HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES=30
+SECRET_KEY = os.getenv("SECRET_KEY", "medassist-ai-secret-key-change-later")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 @router.post("/register")
 def register_user(user: UserRegister):
-
     connection = get_database_connection()
     cursor = connection.cursor()
 
-    cursor.execute(
-        "SELECT id FROM users WHERE email = %s",
-        (user.email,)
-    )
+    try:
+        cursor.execute(
+            "SELECT id FROM users WHERE email = %s",
+            (user.email,)
+        )
+        existing_user = cursor.fetchone()
 
-    existing_user = cursor.fetchone()
+        if existing_user:
+            raise HTTPException(
+                status_code=400,
+                detail="Email already registered. Please sign in instead."
+            )
 
-    if existing_user:
+        password_hash = hash_password(user.password)
+
+        cursor.execute(
+            """
+            INSERT INTO users
+            (full_name, email, password_hash, role)
+            VALUES (%s, %s, %s, %s)
+            RETURNING id, full_name, email, role
+            """,
+            (
+                user.full_name,
+                user.email,
+                password_hash,
+                user.role
+            )
+        )
+        new_user = cursor.fetchone()
+        connection.commit()
+
+        return {
+            "message": "User registered successfully",
+            "user": {
+                "id": new_user[0],
+                "full_name": new_user[1],
+                "email": new_user[2],
+                "role": new_user[3]
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        connection.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Registration database error: {str(e)}"
+        )
+    finally:
         cursor.close()
         connection.close()
-
-        raise HTTPException(
-            status_code=400,
-            detail="Email already registered"
-        )
-
-    password_hash = pwd_context.hash(user.password)
-
-    cursor.execute(
-        """
-        INSERT INTO users
-        (full_name, email, password_hash, role)
-        VALUES (%s, %s, %s, %s)
-        RETURNING id, full_name, email, role
-        """,
-        (
-            user.full_name,
-            user.email,
-            password_hash,
-            user.role
-        )
-    )
-
-    new_user = cursor.fetchone()
-
-    connection.commit()
-
-    cursor.close()
-    connection.close()
-
-    return {
-        "message": "User registered successfully",
-        "user": {
-            "id": new_user[0],
-            "full_name": new_user[1],
-            "email": new_user[2],
-            "role": new_user[3]
-        }
-    }
-
 
 
 @router.post("/login")
@@ -151,61 +164,68 @@ def login_user(
     connection = get_database_connection()
     cursor = connection.cursor()
 
-    cursor.execute(
-        """
-        SELECT id, full_name, email, password_hash, role
-        FROM users
-        WHERE email = %s
-        """,
-        (form_data.username,)
-    )
+    try:
+        cursor.execute(
+            """
+            SELECT id, full_name, email, password_hash, role
+            FROM users
+            WHERE email = %s
+            """,
+            (form_data.username,)
+        )
+        user = cursor.fetchone()
 
-    user = cursor.fetchone()
+        if not user:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid email or password"
+            )
 
-    cursor.close()
-    connection.close()
-
-    if not user:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid email or password"
+        password_is_valid = verify_password(
+            form_data.password,
+            user[3]
         )
 
-    password_is_valid = pwd_context.verify(
-        form_data.password,
-        user[3]
-    )
+        if not password_is_valid:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid email or password"
+            )
 
-    if not password_is_valid:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid email or password"
-        )
-
-    access_token_data = {
-        "sub": str(user[0]),
-        "email": user[2],
-        "role": user[4],
-        "exp": datetime.now(timezone.utc)
-        + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    }
-
-    access_token = jwt.encode(
-        access_token_data,
-        SECRET_KEY,
-        algorithm=ALGORITHM
-    )
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": {
-            "id": user[0],
-            "full_name": user[1],
+        access_token_data = {
+            "sub": str(user[0]),
             "email": user[2],
-            "role": user[4]
+            "role": user[4],
+            "exp": datetime.now(timezone.utc)
+            + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         }
-    }
+
+        access_token = jwt.encode(
+            access_token_data,
+            SECRET_KEY,
+            algorithm=ALGORITHM
+        )
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "id": user[0],
+                "full_name": user[1],
+                "email": user[2],
+                "role": user[4]
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Login database error: {str(e)}"
+        )
+    finally:
+        cursor.close()
+        connection.close()
 
 
 @router.get("/me")

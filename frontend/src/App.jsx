@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home";
 import AppShell from "./components/AppShell";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Patient
 import PatientLogin from "./pages/Patient/Login";
@@ -24,6 +25,8 @@ import CaretakerRegister from "./pages/caretaker/CaretakerRegister";
 import CaretakerDashboard from "./pages/caretaker/CaretakerDashboard";
 import AssignedPatients from "./pages/caretaker/AssignedPatients";
 import PatientDetails from "./pages/caretaker/PatientDetails";
+import CaretakerAnalytics from "./pages/caretaker/CaretakerAnalytics";
+import CarePlans from "./pages/caretaker/CarePlans";
 
 
 function App() {
@@ -38,21 +41,25 @@ function App() {
             <Route path="/caretaker/login" element={<CaretakerLogin />} />
             <Route path="/caretaker/register" element={<CaretakerRegister />} />
 
-            <Route element={<AppShell />}>
-                <Route path="/patient/dashboard" element={<PatientDashboard />} />
-                <Route path="/patient/profile" element={<PatientProfile />} />
-                <Route path="/patient/symptoms" element={<PatientSymptoms />} />
-                <Route path="/patient/disease-prediction" element={<DiseasePrediction />}/>            
-                <Route path="/patient/medical-history" element={<MedicalHistory />} />
-                <Route path="/patient/recommendations" element={<Recommendations />} />
-                <Route path="/patient/health-reports" element={<HealthReports />} />
-                <Route path="/patient/select-caretaker" element={<SelectCaretaker />} />
-                <Route path="/patient/analytics" element={<Analytics />} />
-                <Route path="/patient/risk-assessment" element={<RiskAssessment />}/>
-                <Route path="/caretaker/profile" element={<CaretakerProfile />}/>
-                <Route path="/caretaker/dashboard" element={<CaretakerDashboard />} />
-                <Route path="/caretaker/patients" element={<AssignedPatients />} />
-                <Route path="/caretaker/patients/:id" element={<PatientDetails />} />
+            <Route element={<ProtectedRoute />}>
+                <Route element={<AppShell />}>
+                    <Route path="/patient/dashboard" element={<PatientDashboard />} />
+                    <Route path="/patient/profile" element={<PatientProfile />} />
+                    <Route path="/patient/symptoms" element={<PatientSymptoms />} />
+                    <Route path="/patient/disease-prediction" element={<DiseasePrediction />}/>            
+                    <Route path="/patient/medical-history" element={<MedicalHistory />} />
+                    <Route path="/patient/recommendations" element={<Recommendations />} />
+                    <Route path="/patient/health-reports" element={<HealthReports />} />
+                    <Route path="/patient/select-caretaker" element={<SelectCaretaker />} />
+                    <Route path="/patient/analytics" element={<Analytics />} />
+                    <Route path="/patient/risk-assessment" element={<RiskAssessment />}/>
+                    <Route path="/caretaker/profile" element={<CaretakerProfile />}/>
+                    <Route path="/caretaker/dashboard" element={<CaretakerDashboard />} />
+                    <Route path="/caretaker/patients" element={<AssignedPatients />} />
+                    <Route path="/caretaker/patients/:id" element={<PatientDetails />} />
+                    <Route path="/caretaker/analytics" element={<CaretakerAnalytics />} />
+                    <Route path="/caretaker/care-plans" element={<CarePlans />} />
+                </Route>
             </Route>
 
         </Routes>

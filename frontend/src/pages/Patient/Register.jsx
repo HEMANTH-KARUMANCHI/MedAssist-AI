@@ -14,12 +14,14 @@ import {
 } from "react-icons/fa";
 
 import { registerUser } from "../../services/authService";
+import { useToast } from "../../context/ToastContext";
 
 import "../../styles/Patient.css";
 
 function PatientRegister() {
 
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [formData, setFormData] = useState({
 
@@ -47,7 +49,7 @@ function PatientRegister() {
 
         if (formData.password !== formData.confirmPassword) {
 
-            alert("Passwords do not match");
+            showToast("Passwords do not match. Please re-enter.", "warning");
 
             return;
 
@@ -64,18 +66,19 @@ function PatientRegister() {
 
             });
 
-            alert("Registration Successful");
+            showToast("Registration Successful! Please sign in.", "success");
 
             navigate("/patient/login");
 
         }
 
         catch (error) {
-
             console.error(error);
-
-            alert("Registration Failed");
-
+            if (!error.response) {
+                showToast("Cannot connect to server. Please ensure backend is running on port 8000.", "error");
+            } else {
+                showToast(error.response.data?.detail || "Registration Failed. Please try again.", "error");
+            }
         }
 
     };

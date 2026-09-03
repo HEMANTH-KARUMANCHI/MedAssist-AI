@@ -566,6 +566,50 @@ def get_available_symptoms(
 
 
 # =========================
+# PATIENT CARE PLANS
+# =========================
+
+@router.get("/care-plans")
+def get_patient_care_plans(
+    current_user: dict = Depends(get_current_user)
+):
+    """Retrieve all clinical care plans issued by assigned caretakers."""
+    patient_id = int(current_user["user_id"])
+    conn = get_database_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT cp.id, u.full_name AS caretaker_name, cp.title, cp.diagnosis_notes,
+               cp.medication_advice, cp.dietary_lifestyle, cp.priority, cp.created_at
+        FROM caretaker_care_plans cp
+        JOIN users u ON cp.caretaker_user_id = u.id
+        WHERE cp.patient_user_id = %s
+        ORDER BY cp.created_at DESC
+        """,
+        (patient_id,)
+    )
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return [
+        {
+            "id": r[0],
+            "caretaker_name": r[1],
+            "title": r[2],
+            "diagnosis_notes": r[3],
+            "medication_advice": r[4],
+            "dietary_lifestyle": r[5],
+            "priority": r[6],
+            "created_at": str(r[7])
+        }
+        for r in rows
+    ]
+
+
+
+# =========================
 # PREDICTION REPORT PDF
 # =========================
 

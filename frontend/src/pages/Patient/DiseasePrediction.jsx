@@ -17,6 +17,7 @@ import {
     predictDisease,
     downloadPredictionReport
 } from "../../services/patientService";
+import { useToast } from "../../context/ToastContext";
 
 import "../../styles/Dashboard.css";
 import "../../styles/Button.css";
@@ -24,7 +25,7 @@ import "../../styles/Form.css";
 import "../../styles/Patient.css";
 
 function DiseasePrediction() {
-
+    const { showToast } = useToast();
     const [savedSymptoms, setSavedSymptoms] = useState([]);
     const [prediction, setPrediction] = useState(null);
 
@@ -38,6 +39,7 @@ function DiseasePrediction() {
         try {
             setDownloadLoading(true);
             await downloadPredictionReport();
+            showToast("Report downloaded successfully!", "success");
         } catch (error) {
             console.error("Download failed:", error);
 
@@ -55,104 +57,54 @@ function DiseasePrediction() {
                 message = error.response.data.detail;
             }
 
-            alert(message);
+            showToast(message, "error");
         } finally {
             setDownloadLoading(false);
         }
     };
 
     useEffect(() => {
-
         fetchSavedSymptoms();
-
     }, []);
 
     const fetchSavedSymptoms = async () => {
-
         try {
-
             const response = await getPatientSymptoms();
-
             setSavedSymptoms(response.symptoms);
-
-        }
-
-        catch (error) {
-
+        } catch (error) {
             console.error(error);
-
-            alert(
-
-                error.response?.data?.detail ||
-
-                "Failed to load symptoms."
-
-            );
-
-        }
-
-        finally {
-
+            showToast(error.response?.data?.detail || "Failed to load symptoms.", "error");
+        } finally {
             setLoading(false);
-
         }
-
     };
 
     const handlePredictDisease = async () => {
-
         try {
-
             if (savedSymptoms.length === 0) {
-
-                alert("Please save symptoms first.");
-
+                showToast("Please save symptoms first before predicting.", "warning");
                 return;
-
             }
 
             setPredictLoading(true);
 
             const symptomNames = [
-
                 ...new Set(
-
                     savedSymptoms.map(
-
                         (item) => item.symptom_name
-
                     )
-
                 )
-
             ];
 
             const result = await predictDisease(symptomNames);
-
             setPrediction(result);
-
-        }
-
-        catch (error) {
-
+            showToast("Disease prediction completed successfully!", "success");
+        } catch (error) {
             console.error(error);
-
-            alert(
-
-                error.response?.data?.detail ||
-
-                "Prediction failed."
-
-            );
-
-        }
-
-        finally {
-
+            showToast(error.response?.data?.detail || "Prediction failed.", "error");
+        } finally {
             setPredictLoading(false);
-
         }
-
     };
 
     return (

@@ -1,27 +1,46 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.dataset_loader import load_all_datasets
+from app.database import init_db_tables
 from app.auth import router as auth_router
 from app.patient import router as patient_router
 from app.caretaker import router as caretaker_router
 from app.analytics import router as analytics_router
 
 
-app = FastAPI()
+app = FastAPI(
+    title="MedAssist AI API",
+    description="AI-Powered Disease Prediction, Patient Risk Assessment & Healthcare Analytics API",
+    version="1.0.0"
+)
 
-# CORS Configuration
-origins = [
-    "http://localhost:5173",
-]
-
+# CORS Configuration - Allow all origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Server Error: {str(exc)}"},
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
+
+
+@app.on_event("startup")
+def on_startup():
+    init_db_tables()
+
 
 app.include_router(auth_router)
 app.include_router(patient_router)

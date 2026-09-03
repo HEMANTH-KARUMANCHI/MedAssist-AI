@@ -18,6 +18,7 @@ import {
     getCaretakerProfile,
     updateCaretakerProfile
 } from "../../services/caretakerService";
+import { useToast } from "../../context/ToastContext";
 
 import "../../styles/Patient.css";
 import "../../styles/Dashboard.css";
@@ -25,6 +26,7 @@ import "../../styles/Form.css";
 import "../../styles/Button.css";
 
 function CaretakerProfile() {
+    const { showToast } = useToast();
 
     const [editing, setEditing] = useState(true);
 
@@ -112,7 +114,7 @@ function CaretakerProfile() {
 
             }
 
-            alert("Profile saved successfully.");
+            showToast("Profile saved successfully.", "success");
 
             loadProfile();
 
@@ -122,7 +124,7 @@ function CaretakerProfile() {
 
             console.error(error);
 
-            alert("Failed to save profile.");
+            showToast(error.response?.data?.detail || "Failed to save profile.", "error");
 
         }
 

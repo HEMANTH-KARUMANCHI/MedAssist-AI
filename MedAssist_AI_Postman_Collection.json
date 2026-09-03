@@ -1,0 +1,301 @@
+{
+  "info": {
+    "name": "MedAssist-AI API Collection",
+    "_postman_id": "medassist-ai-collection-v1",
+    "description": "Complete API testing collection for MedAssist-AI healthcare platform (FastAPI + ML Models).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register Patient User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"John Doe\",\n  \"email\": \"patient_test@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"role\": \"patient\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login Patient User (Gets JWT Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access_token) {",
+                  "    pm.collectionVariables.set('authToken', jsonData.access_token);",
+                  "    pm.environment.set('authToken', jsonData.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"patient_test@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Register Caretaker User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Dr. Sarah Smith\",\n  \"email\": \"caretaker_test@example.com\",\n  \"password\": \"DoctorPass123!\",\n  \"role\": \"caretaker\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. AI Predictions & ML Models",
+      "item": [
+        {
+          "name": "Predict Disease (Sparse Symptoms & Typo Resilient)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"symptoms\": [\"fever\", \"nausea\", \"headache\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patient/predict-disease",
+              "host": ["{{baseUrl}}"],
+              "path": ["patient", "predict-disease"]
+            }
+          }
+        },
+        {
+          "name": "Get Available Symptoms List (131 features)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patient/available-symptoms",
+              "host": ["{{baseUrl}}"],
+              "path": ["patient", "available-symptoms"]
+            }
+          }
+        },
+        {
+          "name": "Assess Patient Risk (Random Forest Pipeline)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fever\": \"Yes\",\n  \"cough\": \"Yes\",\n  \"fatigue\": \"Yes\",\n  \"difficulty_breathing\": \"No\",\n  \"age\": 45,\n  \"gender\": \"Male\",\n  \"blood_pressure\": \"High\",\n  \"cholesterol_level\": \"High\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patient/assess-risk",
+              "host": ["{{baseUrl}}"],
+              "path": ["patient", "assess-risk"]
+            }
+          }
+        },
+        {
+          "name": "Get Personalized Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patient/recommendations",
+              "host": ["{{baseUrl}}"],
+              "path": ["patient", "recommendations"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Patient Medical Records",
+      "item": [
+        {
+          "name": "Get Patient Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patient/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["patient", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Save Patient Symptoms",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"symptom_name\": \"high_fever\",\n  \"severity\": \"Moderate\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patient/symptoms",
+              "host": ["{{baseUrl}}"],
+              "path": ["patient", "symptoms"]
+            }
+          }
+        },
+        {
+          "name": "Download PDF Medical Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patient/prediction-report/pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["patient", "prediction-report", "pdf"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Caretaker Clinical Modules",
+      "item": [
+        {
+          "name": "Get Assigned Patients",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/caretaker/patients",
+              "host": ["{{baseUrl}}"],
+              "path": ["caretaker", "patients"]
+            }
+          }
+        },
+        {
+          "name": "Get Caretaker Analytics & Health Trends",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/caretaker/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["caretaker", "analytics"]
+            }
+          }
+        },
+        {
+          "name": "Issue Clinical Care Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_user_id\": 1,\n  \"title\": \"Typhoid Recovery & Hydration Protocol\",\n  \"diagnosis_notes\": \"Patient presented with high fever and nausea. Vital signs stable.\",\n  \"medication_advice\": \"Antibiotic course prescribed for 7 days. Paracetamol 500mg as needed.\",\n  \"dietary_lifestyle\": \"Oral rehydration salts (ORS), boiled water, avoid oily/spicy foods.\",\n  \"priority\": \"High\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/caretaker/care-plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["caretaker", "care-plans"]
+            }
+          }
+        },
+        {
+          "name": "List Care Plans",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/caretaker/care-plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["caretaker", "care-plans"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. System Health & Monitoring",
+      "item": [
+        {
+          "name": "Backend Root & Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,7 @@
-from dataset_loader import load_all_datasets
+try:
+    from app.dataset_loader import load_all_datasets
+except ImportError:
+    from dataset_loader import load_all_datasets
 
 
 patient_profile, disease_dataset, symptom_severity = load_all_datasets()

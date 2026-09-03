@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { createPatientProfile, getPatientProfile, updatePatientProfile } from "../../services/patientService";
+import { useToast } from "../../context/ToastContext";
 import "../../styles/Patient.css";
 import { Link, useNavigate } from "react-router-dom";
 
 function Profile() {
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [formData, setFormData] = useState({
         date_of_birth: "",
@@ -77,12 +79,12 @@ function Profile() {
 
             if (profileExists) {
                 await updatePatientProfile(profileData);
-                alert("Profile updated successfully!");
+                showToast("Profile updated successfully!", "success");
             } else {
 
                     await createPatientProfile(profileData);
 
-                    alert("Profile created successfully!");
+                    showToast("Profile created successfully!", "success");
 
                     setProfileExists(true);
 
@@ -96,9 +98,10 @@ function Profile() {
 
             console.error(error);
 
-            alert(
+            showToast(
                 error.response?.data?.detail ||
-                "Failed to Save Profile"
+                "Failed to Save Profile",
+                "error"
             );
 
         }

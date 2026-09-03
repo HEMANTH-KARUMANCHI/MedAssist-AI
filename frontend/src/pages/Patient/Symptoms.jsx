@@ -16,6 +16,7 @@ import {
     getPatientSymptoms,
     deletePatientSymptom
 } from "../../services/patientService";
+import { useToast } from "../../context/ToastContext";
 
 import "../../styles/Patient.css";
 import "../../styles/Dashboard.css";
@@ -23,7 +24,7 @@ import "../../styles/Form.css";
 import "../../styles/Button.css";
 
 function Symptoms() {
-
+    const { showToast } = useToast();
     const [symptoms, setSymptoms] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -50,9 +51,11 @@ function Symptoms() {
 
             console.error(error);
 
-            alert(
+            showToast(
                 error.response?.data?.detail ||
-                error.message
+                error.message ||
+                "Failed to load symptoms list.",
+                "error"
             );
 
         } finally {
@@ -151,7 +154,7 @@ function Symptoms() {
 
             if (selectedSymptoms.length === 0) {
 
-                alert("Please select at least one symptom.");
+                showToast("Please select at least one symptom.", "warning");
 
                 return;
 
@@ -175,10 +178,11 @@ function Symptoms() {
 
             if (duplicateSymptoms.length > 0) {
 
-                alert(
+                showToast(
                     `These symptom(s) are already saved: ${duplicateSymptoms
                         .map((item) => item.symptom_name)
-                        .join(", ")}`
+                        .join(", ")}`,
+                    "warning"
                 );
 
                 return;
@@ -199,7 +203,7 @@ function Symptoms() {
 
             }
 
-            alert("Symptoms saved successfully!");
+            showToast("Symptoms saved successfully!", "success");
 
             setSelectedSymptoms([]);
 
@@ -209,11 +213,12 @@ function Symptoms() {
 
             console.error(error);
 
-            alert(
+            showToast(
 
                 error.response?.data?.detail ||
 
-                "Failed to save symptoms."
+                "Failed to save symptoms.",
+                "error"
 
             );
 
@@ -235,7 +240,7 @@ function Symptoms() {
 
             await deletePatientSymptom(symptomId);
 
-            alert("Symptom deleted successfully!");
+            showToast("Symptom deleted successfully!", "success");
 
             fetchSavedSymptoms();
 
@@ -243,11 +248,12 @@ function Symptoms() {
 
             console.error(error);
 
-            alert(
+            showToast(
 
                 error.response?.data?.detail ||
 
-                "Failed to delete symptom."
+                "Failed to delete symptom.",
+                "error"
 
             );
 

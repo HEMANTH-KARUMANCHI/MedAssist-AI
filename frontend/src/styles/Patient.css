@@ -1557,6 +1557,45 @@ body{
 
 .risk-history-arrow {
     color: #38a8f5 !important;
-
     font-size: 11px !important;
 }
+
+/* ====================================
+   High-Contrast Glassmorphic Typography
+==================================== */
+.profile-card {
+    background: rgba(15, 28, 54, 0.78) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+.profile-card h1,
+.profile-card h2,
+.profile-card h3 {
+    color: #ffffff !important;
+}
+
+.profile-card p {
+    color: #e2e8f0 !important;
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
+.profile-card strong {
+    color: #38bdf8 !important;
+}
+
+.dashboard-card h3,
+.stat-card h3,
+.glass-card h3,
+.hero-content h1,
+.section-header h2 {
+    color: #ffffff !important;
+}
+
+.dashboard-card p,
+.glass-card p,
+.hero-content p,
+.section-header p {
+    color: #cbd5e1 !important;
+}

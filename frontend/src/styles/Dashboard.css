@@ -897,4 +897,58 @@
 .profile-card > p { color: #d7e8ff; margin: 12px 0; }
 .profile-card form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; margin-top: 24px; }
 .profile-card form button { grid-column: 1 / -1; justify-self: start; }
-@media (max-width: 700px) { .patient-dashboard .hero-content h1 { font-size: 34px; } .profile-card form { grid-template-columns: 1fr; } }
+@media (max-width: 768px) {
+    .dashboard-content {
+        padding: 90px 16px 40px;
+    }
+
+    .dashboard-hero {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .patient-dashboard .hero-content h1 {
+        font-size: 28px;
+    }
+
+    .hero-badge {
+        width: 140px;
+        height: 140px;
+        font-size: 18px;
+    }
+
+    .hero-badge svg {
+        font-size: 38px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 14px;
+        margin-bottom: 30px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .glass-card {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .profile-card form {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .action-buttons button,
+    .action-buttons a {
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 
 import { loginUser } from "../../services/authService";
+import { useToast } from "../../context/ToastContext";
 
 import "../../styles/Patient.css";
 import "../../styles/Form.css";
@@ -20,6 +21,7 @@ import "../../styles/Dashboard.css";
 function CaretakerLogin() {
 
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [email, setEmail] = useState("");
 
@@ -35,7 +37,7 @@ function CaretakerLogin() {
 
             if (response.user.role !== "caretaker") {
 
-                alert("This account is not registered as a caretaker.");
+                showToast("This account is not registered as a caretaker.", "warning");
 
                 return;
 
@@ -56,18 +58,19 @@ function CaretakerLogin() {
                 JSON.stringify(response.user)
             );
 
-            alert("Login Successful");
+            showToast("Login Successful! Welcome back.", "success");
 
             navigate("/caretaker/dashboard");
 
         }
 
         catch (error) {
-
             console.error(error);
-
-            alert("Invalid Email or Password");
-
+            if (!error.response) {
+                showToast("Cannot connect to server. Please ensure backend is running on port 8000.", "error");
+            } else {
+                showToast(error.response.data?.detail || "Invalid Email or Password", "error");
+            }
         }
 
     };

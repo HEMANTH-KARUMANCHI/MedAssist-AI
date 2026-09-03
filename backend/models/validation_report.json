@@ -1,0 +1,117 @@
+{
+  "timestamp": "2026-09-03T10:17:30.448055",
+  "disease_prediction_model": {
+    "model_name": "Disease Prediction Model",
+    "algorithm": "RandomForestClassifier",
+    "classes": 41,
+    "features_count": 131,
+    "test_accuracy": 0.8923,
+    "test_f1_score": 0.8933,
+    "overall_accuracy": 0.8936,
+    "cross_val_accuracy_mean": 0.8598,
+    "cross_val_accuracy_std": 0.0051,
+    "top_features": [
+      {
+        "feature": "vomiting",
+        "importance": 0.0215
+      },
+      {
+        "feature": "fatigue",
+        "importance": 0.0205
+      },
+      {
+        "feature": "high_fever",
+        "importance": 0.0184
+      },
+      {
+        "feature": "nausea",
+        "importance": 0.0165
+      },
+      {
+        "feature": "loss_of_appetite",
+        "importance": 0.0161
+      },
+      {
+        "feature": "headache",
+        "importance": 0.0148
+      },
+      {
+        "feature": "chest_pain",
+        "importance": 0.0143
+      },
+      {
+        "feature": "itching",
+        "importance": 0.0132
+      },
+      {
+        "feature": "joint_pain",
+        "importance": 0.013
+      },
+      {
+        "feature": "sweating",
+        "importance": 0.0126
+      }
+    ]
+  },
+  "patient_risk_model": {
+    "model_name": "Patient Risk Assessment Model",
+    "algorithm": "RandomForestClassifier (ColumnTransformer Pipeline)",
+    "features": [
+      "Fever",
+      "Cough",
+      "Fatigue",
+      "Difficulty Breathing",
+      "Age",
+      "Gender",
+      "Blood Pressure",
+      "Cholesterol Level"
+    ],
+    "test_accuracy": 0.9216,
+    "balanced_accuracy": 0.92,
+    "precision": 0.8667,
+    "recall": 1.0,
+    "f1_score": 0.9286,
+    "roc_auc_score": 0.9769,
+    "cross_val_accuracy_mean": 0.6253,
+    "confusion_matrix": {
+      "true_negative": 21,
+      "false_positive": 4,
+      "false_negative": 0,
+      "true_positive": 26
+    },
+    "top_risk_drivers": [
+      {
+        "feature": "numerical__Age",
+        "importance": 0.3056
+      },
+      {
+        "feature": "categorical__Cholesterol Level_High",
+        "importance": 0.0771
+      },
+      {
+        "feature": "categorical__Gender_Male",
+        "importance": 0.058
+      },
+      {
+        "feature": "categorical__Fever_No",
+        "importance": 0.0535
+      },
+      {
+        "feature": "categorical__Blood Pressure_High",
+        "importance": 0.0489
+      },
+      {
+        "feature": "categorical__Gender_Female",
+        "importance": 0.0477
+      },
+      {
+        "feature": "categorical__Fever_Yes",
+        "importance": 0.0473
+      },
+      {
+        "feature": "categorical__Cholesterol Level_Normal",
+        "importance": 0.0425
+      }
+    ]
+  }
+}

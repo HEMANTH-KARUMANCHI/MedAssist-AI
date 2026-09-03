@@ -1,6 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-
 
 import {
     FaUserNurse,
@@ -9,19 +8,31 @@ import {
     FaHeartbeat,
     FaShieldAlt,
     FaClipboardList,
-    FaHospital
+    FaHospital,
+    FaSignOutAlt,
+    FaChartBar,
+    FaNotesMedical
 } from "react-icons/fa";
 
 import { getAssignedPatients } from "../../services/caretakerService";
+import { useToast } from "../../context/ToastContext";
 
 import "../../styles/Patient.css";
 import "../../styles/Dashboard.css";
 
 function CaretakerDashboard() {
+    const navigate = useNavigate();
+    const { showToast } = useToast();
+    const [patients, setPatients] = useState([]);
+    const [loadingPatients, setLoadingPatients] = useState(true);
+    const [patientsError, setPatientsError] = useState("");
 
-        const [patients, setPatients] = useState([]);
-const [loadingPatients, setLoadingPatients] = useState(true);
-const [patientsError, setPatientsError] = useState("");
+    const handleLogout = () => {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("token_type");
+        showToast("Signed out from Caretaker Portal.", "info");
+        navigate("/caretaker/login");
+    };
 
             useEffect(() => {
         loadAssignedPatients();
@@ -215,31 +226,65 @@ const [patientsError, setPatientsError] = useState("");
                             to="/caretaker/patients"
                             className="dashboard-card"
                         >
-
                             <div className="card-icon">
-
                                 <FaUsers />
-
                             </div>
-
                             <h3>
-
                                 Assigned Patients
-
                             </h3>
-
                             <p>
-
                                 Access all patients assigned to you,
                                 monitor their health records and provide
                                 continuous care.
-
                             </p>
-
                         </Link>
 
-                    </div>
+                        <Link
+                            to="/caretaker/analytics"
+                            className="dashboard-card"
+                        >
+                            <div className="card-icon" style={{ color: "#38bdf8" }}>
+                                <FaChartBar />
+                            </div>
+                            <h3>
+                                Analytics & Health Trends
+                            </h3>
+                            <p>
+                                Monitor patient volume, disease distribution,
+                                risk stratification, and health activity trends.
+                            </p>
+                        </Link>
 
+                        <Link
+                            to="/caretaker/care-plans"
+                            className="dashboard-card"
+                        >
+                            <div className="card-icon" style={{ color: "#a855f7" }}>
+                                <FaNotesMedical />
+                            </div>
+                            <h3>
+                                Clinical Care Plans
+                            </h3>
+                            <p>
+                                Formulate and issue personalized treatment notes,
+                                medication advice, and dietary recommendations.
+                            </p>
+                        </Link>
+
+                        <div
+                            className="dashboard-card"
+                            onClick={handleLogout}
+                            style={{ cursor: "pointer", border: "1px solid rgba(239, 68, 68, 0.35)" }}
+                        >
+                            <div className="card-icon" style={{ background: "rgba(239, 68, 68, 0.2)", color: "#f87171" }}>
+                                <FaSignOutAlt />
+                            </div>
+                            <h3>Sign Out / Exit</h3>
+                            <p>
+                                Safely end your current session and exit the Caretaker portal.
+                            </p>
+                        </div>
+                    </div>
                 </section>
 
 

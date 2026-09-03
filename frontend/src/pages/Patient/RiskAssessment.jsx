@@ -5,12 +5,14 @@ import {
     assessPatientRisk,
     getPatientRiskAssessments
 } from "../../services/patientService";
+import { useToast } from "../../context/ToastContext";
 
 import "../../styles/Patient.css";
 
 function RiskAssessment() {
 
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [formData, setFormData] = useState({
 
@@ -133,6 +135,7 @@ function RiskAssessment() {
 
         await loadRiskHistory();
 
+        showToast("Risk assessment completed successfully!", "success");
 
     } catch (error) {
 
@@ -141,8 +144,9 @@ function RiskAssessment() {
             error
         );
 
-        alert(
-            "Unable to complete risk assessment."
+        showToast(
+            error.response?.data?.detail || "Unable to complete risk assessment.",
+            "error"
         );
 
     } finally {

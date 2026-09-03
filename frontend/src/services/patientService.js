@@ -95,6 +95,14 @@ export const getPatientRecommendations = async () => {
 };
 
 
+// Get Care Plans Issued by Caretaker
+export const getPatientCarePlans = async () => {
+    const response = await api.get("/patient/care-plans");
+    return response.data;
+};
+
+
+
 
 // Patient Risk Assessment
 export const assessPatientRisk = async (riskData) => {

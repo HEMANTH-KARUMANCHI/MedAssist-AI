@@ -15,6 +15,7 @@ import {
     getCaretakers,
     selectCaretaker
 } from "../../services/patientService";
+import { useToast } from "../../context/ToastContext";
 
 import "../../styles/Dashboard.css";
 import "../../styles/Button.css";
@@ -22,6 +23,7 @@ import "../../styles/Form.css";
 import "../../styles/Patient.css";
 
 function SelectCaretaker() {
+    const { showToast } = useToast();
 
     const [caretakers, setCaretakers] = useState([]);
 
@@ -55,17 +57,18 @@ function SelectCaretaker() {
 
             await selectCaretaker(id);
 
-            alert("Caretaker selected successfully.");
+            showToast("Caretaker selected successfully!", "success");
 
         }
 
         catch (error) {
 
-            alert(
+            showToast(
 
                 error.response?.data?.detail ||
 
-                "Selection failed."
+                "Selection failed.",
+                "error"
 
             );
 

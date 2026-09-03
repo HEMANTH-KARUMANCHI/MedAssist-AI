@@ -12,12 +12,14 @@ import {
 } from "react-icons/fa";
 
 import { loginUser } from "../../services/authService";
+import { useToast } from "../../context/ToastContext";
 
 import "../../styles/Patient.css";
 
 function PatientLogin() {
 
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [email, setEmail] = useState("");
 
@@ -41,18 +43,19 @@ function PatientLogin() {
                 response.token_type
             );
 
-            alert("Login Successful");
+            showToast("Login Successful! Welcome back.", "success");
 
             navigate("/patient/dashboard");
 
         }
 
         catch (error) {
-
             console.error(error);
-
-            alert("Invalid Email or Password");
-
+            if (!error.response) {
+                showToast("Cannot connect to server. Please ensure backend is running on port 8000.", "error");
+            } else {
+                showToast(error.response.data?.detail || "Invalid Email or Password", "error");
+            }
         }
 
     };
