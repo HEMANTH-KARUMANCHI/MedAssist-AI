@@ -41,3 +41,6 @@ htmlcov/
 
 # Generated patient reports
 backend/uploads/patient_reports/
+
+#model
+backend/models/disease_prediction_model.pkl
