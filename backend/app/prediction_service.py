@@ -39,14 +39,20 @@ PRECAUTION_PATH = (
 
 
 # --------------------------------------------------
-# Load existing trained model & features
+# Load or Auto-train model & features
 # --------------------------------------------------
+
+if not MODEL_PATH.exists() or not FEATURES_PATH.exists():
+    MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    from app.train_disease_model import train_and_evaluate
+    train_and_evaluate()
 
 model = joblib.load(MODEL_PATH)
 feature_names = joblib.load(FEATURES_PATH)
 
 description_df = pd.read_csv(DESCRIPTION_PATH, encoding="latin1")
 precaution_df = pd.read_csv(PRECAUTION_PATH, encoding="latin1")
+
 
 
 # --------------------------------------------------

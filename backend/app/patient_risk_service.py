@@ -19,10 +19,16 @@ MODEL_PATH = (
 
 
 # --------------------------------------------------
-# LOAD MODEL
+# LOAD OR AUTO-TRAIN MODEL
 # --------------------------------------------------
 
+if not MODEL_PATH.exists():
+    MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    from app.train_patient_risk_model import train_patient_risk_model
+    train_patient_risk_model()
+
 model = joblib.load(MODEL_PATH)
+
 
 
 # --------------------------------------------------
