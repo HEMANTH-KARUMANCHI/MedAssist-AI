@@ -126,19 +126,15 @@ def train_and_evaluate() -> dict:
     )
 
     model = RandomForestClassifier(
-        n_estimators=350,
+        n_estimators=100,
         max_features="sqrt",
         random_state=42,
         class_weight="balanced",
-        n_jobs=-1,
+        n_jobs=1,
     )
     model.fit(X_train, y_train)
 
     predictions = model.predict(X_test)
-
-    # 5-fold cross validation
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    cv_scores = cross_val_score(model, X, y, cv=cv, scoring="accuracy")
 
     precision = precision_score(y_test, predictions, average="macro", zero_division=0)
     recall = recall_score(y_test, predictions, average="macro", zero_division=0)
@@ -152,8 +148,6 @@ def train_and_evaluate() -> dict:
         "precision": float(precision),
         "recall": float(recall),
         "macro_f1": float(macro_f1),
-        "cv_5fold_mean": float(cv_scores.mean()),
-        "cv_5fold_std": float(cv_scores.std()),
         "train_rows": int(len(X_train)),
         "test_rows": int(len(X_test)),
         "total_augmented_rows": int(len(df)),

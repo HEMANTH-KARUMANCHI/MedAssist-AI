@@ -27,9 +27,6 @@ COPY datasets/ /app/datasets/
 # Ensure uploads directory exists
 RUN mkdir -p /app/backend/uploads/patient_reports
 
-# Generate trained ML models if not pre-packaged
-RUN python -m app.train_disease_model && python -m app.train_patient_risk_model
-
 WORKDIR /app/backend
 
 
